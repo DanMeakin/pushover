@@ -30,7 +30,7 @@ version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
 bindir     = "/home/daniel/Dropbox/coding/haskell/pushover/.stack-work/install/x86_64-linux/lts-8.3/8.0.2/bin"
-libdir     = "/home/daniel/Dropbox/coding/haskell/pushover/.stack-work/install/x86_64-linux/lts-8.3/8.0.2/lib/x86_64-linux-ghc-8.0.2/pushover-0.1.0.0-CBt8vIKH2Am4GA6Wxem8fe"
+libdir     = "/home/daniel/Dropbox/coding/haskell/pushover/.stack-work/install/x86_64-linux/lts-8.3/8.0.2/lib/x86_64-linux-ghc-8.0.2/pushover-0.1.0.0-4TWirDyXNnBIwA3RcCU6Ud"
 dynlibdir  = "/home/daniel/Dropbox/coding/haskell/pushover/.stack-work/install/x86_64-linux/lts-8.3/8.0.2/lib/x86_64-linux-ghc-8.0.2"
 datadir    = "/home/daniel/Dropbox/coding/haskell/pushover/.stack-work/install/x86_64-linux/lts-8.3/8.0.2/share/x86_64-linux-ghc-8.0.2/pushover-0.1.0.0"
 libexecdir = "/home/daniel/Dropbox/coding/haskell/pushover/.stack-work/install/x86_64-linux/lts-8.3/8.0.2/libexec"

@@ -14,6 +14,13 @@
   (major1) == 4 && (major2) <  9 || \
   (major1) == 4 && (major2) == 9 && (minor) <= 1)
 
+/* package http-client-0.5.6.1 */
+#define VERSION_http_client "0.5.6.1"
+#define MIN_VERSION_http_client(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  5 || \
+  (major1) == 0 && (major2) == 5 && (minor) <= 6)
+
 /* tool cpphs-1.20.3 */
 #define TOOL_VERSION_cpphs "1.20.3"
 #define MIN_TOOL_VERSION_cpphs(major1,major2,minor) (\
@@ -84,7 +91,7 @@
   (major1) == 2 && (major2) <  27 || \
   (major1) == 2 && (major2) == 27 && (minor) <= 0)
 
-#define CURRENT_COMPONENT_ID "pushover-0.1.0.0-CBt8vIKH2Am4GA6Wxem8fe"
+#define CURRENT_COMPONENT_ID "pushover-0.1.0.0-4TWirDyXNnBIwA3RcCU6Ud"
 
-#define CURRENT_PACKAGE_KEY "pushover-0.1.0.0-CBt8vIKH2Am4GA6Wxem8fe"
+#define CURRENT_PACKAGE_KEY "pushover-0.1.0.0-4TWirDyXNnBIwA3RcCU6Ud"
 
