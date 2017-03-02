@@ -25,7 +25,9 @@ type UnvalidatedAPIToken
 type UnvalidatedUserKey
   = Text
 
-createKeys :: UnvalidatedAPIToken -> UnvalidatedUserKey -> Either TokenError PushoverKeys
+createKeys :: UnvalidatedAPIToken 
+           -> UnvalidatedUserKey 
+           -> Either TokenError PushoverKeys
 createKeys apiTkn usrKey =
   PushoverKeys
     <$> makeToken apiTkn

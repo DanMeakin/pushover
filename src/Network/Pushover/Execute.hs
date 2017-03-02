@@ -1,12 +1,30 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Network.Pushover.Execute where
+{-| This module exposes a set of functions used for constructing and submitting
+requests to the Pushover API.
+
+Each function has two versions: a monadic version and a non-monadic version.
+The monadic versions are designed for use within an existing monad transformer
+stack within an existing application. The non-monadic versions are designed
+for standalone use.
+
+-}
+module Network.Pushover.Execute 
+  ( -- * Regular functions
+    sendMessage
+  , sendRequest
+  , createRequest
+    -- * Monadic functions
+  , sendMessageM
+  , sendRequestM
+  , createRequestM
+  , PushoverException (..)
+  ) where
 
 import Control.Monad.Catch
-import Control.Monad.Except
 import Control.Monad.Reader
-import Data.Aeson
+import Data.Aeson (decode)
 import Data.Typeable
-import Network.Pushover.Request (Request, defaultRequest, requestQueryPairs, Message)
+import Network.Pushover.Request hiding (userKey)
 import Network.Pushover.Response (Response)
 import Network.Pushover.Reader (PushoverReader (..))
 import Network.Pushover.Token
@@ -14,29 +32,31 @@ import Network.Pushover.Token
 import qualified Network.HTTP.Client as Http
 import Network.HTTP.Client.TLS (newTlsManager)
 
-endpoint = "https://api.pushover.net/1/messages.json"
+-- | Defines possible exceptions which can be thrown from execution commands. 
+data PushoverException
+  = ResponseDecodeException
+  -- ^ This exception is thrown when a response is malformed and cannot be
+  --   decoded.
+  deriving (Show, Typeable)
 
-createRequest :: (MonadReader r m, PushoverReader r) => Message -> m Request
-createRequest message = do
-  apiTk <- asks apiToken
-  usrK  <- asks userKey
-  return $ defaultRequest apiTk usrK message  
+instance Exception PushoverException
 
-sendRequest :: ( MonadIO m
-               , MonadThrow m
-               , MonadReader r m
-               , PushoverReader r
-               ) 
-            => Message 
-            -> m Response
-sendRequest message = do
+-- | Send a request to the Pushover API.
+--
+-- Requires a pair of Pushover tokens, together with a 'Message' value. These
+-- are used to construct a 'defaultRequest' which is then sent to the API.
+sendMessage :: APIToken -> UserKey -> Message -> IO Response
+sendMessage apiTk userK =
+  sendRequest . defaultRequest apiTk userK
+
+-- | Send a request to the Pushover API.
+--
+-- This is similar to 'sendMessage', except that a constructed 'Request' must
+-- be passed instead of the tokens and message.
+sendRequest :: Request -> IO Response
+sendRequest pushoverRequest = do
   manager <- liftIO newTlsManager
-  initialRequest <- Http.parseRequest endpoint
-  pushoverRequest <- createRequest message
-  let request =
-        Http.setQueryString (requestQueryPairs pushoverRequest)
-          $ initialRequest
-              { Http.method = "POST" }
+  request <- makeHttpRequest pushoverRequest
   response <- liftIO $ Http.httpLbs request manager
   case decode $ Http.responseBody response of
        Just resp ->
@@ -45,8 +65,63 @@ sendRequest message = do
        Nothing ->
          throwM ResponseDecodeException
 
-data PushoverException
-  = ResponseDecodeException
-  deriving (Show, Typeable)
+-- | Send a request to the Pushover API.
+--
+-- This function is designed for use within an existing monad transformer 
+-- stack to make it easy to send Pushover notifications from inside existing
+-- software.
+--
+-- The relevant tokens are read from a 'PushoverReader' MonadReader instance.
+-- These are then used to construct a 'defaultRequest' containing the passed
+-- 'Message' value.
+sendMessageM :: ( MonadIO m
+                , MonadThrow m
+                , MonadReader r m
+                , PushoverReader r
+                ) 
+             => Message 
+             -> m Response
+sendMessageM message = do
+  pushoverRequest <- createRequestM message
+  liftIO $ sendRequest pushoverRequest
 
-instance Exception PushoverException
+
+-- | Send a request to the Pushover API.
+--
+-- This function is designed for use within an existing monad transformer 
+-- stack to make it easy to send Pushover notifications from inside existing
+-- software.
+--
+-- This is similar to 'sendMessageM', except that a constructed 'Request' must
+-- be passed instead of just the message.
+sendRequestM :: ( MonadIO m
+                , MonadThrow m
+                , MonadReader r m
+                , PushoverReader r
+                ) 
+             => Request
+             -> m Response
+sendRequestM pushoverRequest =
+  liftIO $ sendRequest pushoverRequest
+
+
+-- | Create a standard Pushover request.
+--
+-- This is an alias of the 'defaultRequest' function.
+createRequest :: APIToken -> UserKey -> Message -> Request
+createRequest =
+  defaultRequest
+
+-- | Create a standard Pushover request.
+--
+-- This is similar to 'createRequest', except that token information is read
+-- from within the monad stack.
+createRequestM :: ( MonadReader r m
+                  , PushoverReader r
+                  )
+               => Message 
+               -> m Request
+createRequestM message = do
+  apiTk <- asks apiToken
+  usrK  <- asks userKey
+  return $ defaultRequest apiTk usrK message  
