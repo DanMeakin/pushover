@@ -1,5 +1,6 @@
 module Network.Pushover.Reader where
 
+import Data.Text (Text)
 import Network.Pushover.Token
 
 class PushoverReader r where
@@ -17,3 +18,15 @@ instance PushoverReader PushoverKeys where
   
   userKey =
     _userKey
+
+type UnvalidatedAPIToken 
+  = Text
+
+type UnvalidatedUserKey
+  = Text
+
+createKeys :: UnvalidatedAPIToken -> UnvalidatedUserKey -> Either TokenError PushoverKeys
+createKeys apiTkn usrKey =
+  PushoverKeys
+    <$> makeToken apiTkn
+    <*> makeToken usrKey
