@@ -52,9 +52,9 @@ type TokenError
 makeToken :: Text -> Either TokenError PushoverToken
 makeToken tokenText = do
   unless validateLength $
-    Left "user key must be exactly 30 characters long"
+    Left "token must be exactly 30 characters long"
   unless validateChars $
-    Left "user key must contain only alphanumeric characters"
+    Left "token must contain only alphanumeric characters"
   return $ PushoverToken tokenText
 
   where 
