@@ -50,6 +50,7 @@ test-suite pushover-test
   other-modules:       Network.Pushover.RequestTest
   build-depends:       base
                      , bytestring
+                     , http-client
                      , pushover
                      , tasty
                      , tasty-hunit

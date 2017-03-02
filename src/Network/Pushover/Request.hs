@@ -55,11 +55,11 @@ data Request = Request
   , notificationSound :: Maybe NotificationSound
   -- ^ The notification sound to use. The default is 'Pushover', with 'None' 
   --   provided for a silent notification.
-  } deriving Show
+  } deriving (Show, Eq)
 
 newtype Message = Message
   { getMessage :: Text 
-  } deriving Show
+  } deriving (Show, Eq)
 
 -- | A URL for sending within a notification request.
 --
@@ -68,7 +68,7 @@ newtype Message = Message
 data URL = URL
   { urlPath  :: Text
   , urlTitle :: Maybe Text
-  } deriving Show
+  } deriving (Show, Eq)
 
 -- | Describes the priority of a particular message.
 --
@@ -81,7 +81,7 @@ data Priority
   | Normal
   | High
   | Emergency
-  deriving Show
+  deriving (Show, Eq)
 
 -- | Describes the notification sound for a notification. 
 data NotificationSound 
@@ -107,7 +107,7 @@ data NotificationSound
   | Echo
   | UpDown
   | None
-  deriving Show
+  deriving (Show, Eq)
 
 -- | Construct a default request value.
 --

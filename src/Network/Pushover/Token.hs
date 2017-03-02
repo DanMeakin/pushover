@@ -15,7 +15,7 @@ import qualified Data.Text as T
 -- function is used to construct validated tokens.
 newtype PushoverToken = PushoverToken
   { getToken :: Text
-  } deriving Show
+  } deriving (Show, Eq)
 
 instance ToJSON PushoverToken where
   toJSON =
