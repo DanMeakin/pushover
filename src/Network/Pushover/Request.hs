@@ -28,7 +28,7 @@ import Network.URI.Encode
 -- | Pushover API endpoint.
 endpoint = "https://api.pushover.net/1/messages.json"
 
--- | Construct the contents of a Pushover notification request. This follows
+-- | Contains the contents of a Pushover notification request. This follows
 --   the API specification at @https://pushover.net/api@.
 data Request = Request
   { token     :: APIToken
@@ -57,6 +57,7 @@ data Request = Request
   --   provided for a silent notification.
   } deriving (Show, Eq)
 
+-- | Represents a message sent to the Pushover API.
 newtype Message = Message
   { getMessage :: Text 
   } deriving (Show, Eq)
