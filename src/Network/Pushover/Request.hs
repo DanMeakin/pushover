@@ -153,8 +153,8 @@ requestQueryPairs =
         makePairs :: Request -> [(ByteString, Maybe ByteString)]
         makePairs request =
           (fmap . fmap) ($ request)
-            [ ("token"     , encodeValue . getToken . token)
-            , ("user"      , encodeValue . getToken . userKey)
+            [ ("token"     , Just . encodeToken . token)
+            , ("user"      , Just . encodeToken . userKey)
             , ("message"   , encodeValue . getMessage . message)
             , ("device"    , encodeValue . T.intercalate "," . devices)
             , ("title"     , encodeMaybe . title )

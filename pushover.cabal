@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Network.Pushover
+                     , Network.Pushover.Exceptions
                      , Network.Pushover.Execute
                      , Network.Pushover.Reader
                      , Network.Pushover.Request

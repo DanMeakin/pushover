@@ -19,6 +19,8 @@ module Network.Pushover.Token
   , makeToken
   , makeTokenM
   , makeTokenOrError
+    -- * Encoding for use in HTTP request
+  , encodeToken
   ) where
 
 import Control.Arrow (left)
@@ -26,9 +28,11 @@ import Control.Monad (unless)
 import Control.Monad.Catch
 import Control.Monad.Except
 import Data.Aeson
+import Data.ByteString.Char8 (ByteString)
 import Data.Char (isAlphaNum)
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import Network.Pushover.Exceptions
 
 -- | Define a type to represent the different types of token or key Pushover
@@ -107,3 +111,9 @@ makeTokenOrError tokenText =
 
        Left err ->
          error $ errorMessage err
+
+-- | Encode a 'PushoverToken' into a bytestring for sending within an HTTP
+--   request.
+encodeToken :: PushoverToken -> ByteString
+encodeToken =
+  T.encodeUtf8 . getToken

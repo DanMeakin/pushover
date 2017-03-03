@@ -44,8 +44,12 @@ module Network.Pushover
   , PushoverReader (..)
   , PushoverKeys (..)
   , createKeys
+    -- * Exceptions
+  , PushoverException
+  , errorMessage
   ) where
 
+import Network.Pushover.Exceptions
 import Network.Pushover.Execute
 import Network.Pushover.Reader
 import Network.Pushover.Request

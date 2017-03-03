@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-| This module exposes a set of functions used for constructing and submitting
 requests to the Pushover API.
@@ -20,12 +21,14 @@ module Network.Pushover.Execute
   , PushoverException (..)
   ) where
 
-import Control.Monad.Catch
+import Control.Exception (throw)
+import Control.Monad.Except
 import Control.Monad.Reader
 import Data.Aeson (decode)
 import Network.Pushover.Request hiding (userKey)
 import Network.Pushover.Response (Response)
 import Network.Pushover.Reader (PushoverReader (..))
+import Network.Pushover.Exceptions
 import Network.Pushover.Token
 
 import qualified Network.HTTP.Client as Http
@@ -44,16 +47,8 @@ sendMessage apiTk userK =
 -- This is similar to 'sendMessage', except that a constructed 'Request' must
 -- be passed instead of the tokens and message.
 sendRequest :: Request -> IO Response
-sendRequest pushoverRequest = do
-  manager <- liftIO newTlsManager
-  request <- makeHttpRequest pushoverRequest
-  response <- liftIO $ Http.httpLbs request manager
-  case decode $ Http.responseBody response of
-       Just resp ->
-         return resp
-
-       Nothing ->
-         throwM ResponseDecodeException
+sendRequest =
+  sendRequestM
 
 -- | Send a request to the Pushover API.
 --
@@ -65,7 +60,7 @@ sendRequest pushoverRequest = do
 -- These are then used to construct a 'defaultRequest' containing the passed
 -- 'Message' value.
 sendMessageM :: ( MonadIO m
-                , MonadThrow m
+                , MonadError e m
                 , MonadReader r m
                 , PushoverReader r
                 ) 
@@ -84,15 +79,21 @@ sendMessageM message = do
 --
 -- This is similar to 'sendMessageM', except that a constructed 'Request' must
 -- be passed instead of just the message.
-sendRequestM :: ( MonadIO m
-                , MonadThrow m
-                , MonadReader r m
-                , PushoverReader r
+sendRequestM :: ( MonadError e m
+                , MonadIO m
                 ) 
              => Request
              -> m Response
-sendRequestM pushoverRequest =
-  liftIO $ sendRequest pushoverRequest
+sendRequestM pushoverRequest = do
+  manager <- newTlsManager
+  request <- liftIO $ makeHttpRequest pushoverRequest
+  response <- liftIO $ Http.httpLbs request manager
+  case decode $ Http.responseBody response of
+       Just resp ->
+         return resp
+
+       Nothing ->
+         throw ResponseDecodeException
 
 
 -- | Create a standard Pushover request.
