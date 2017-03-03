@@ -23,7 +23,6 @@ module Network.Pushover.Execute
 import Control.Monad.Catch
 import Control.Monad.Reader
 import Data.Aeson (decode)
-import Data.Typeable
 import Network.Pushover.Request hiding (userKey)
 import Network.Pushover.Response (Response)
 import Network.Pushover.Reader (PushoverReader (..))
@@ -31,15 +30,6 @@ import Network.Pushover.Token
 
 import qualified Network.HTTP.Client as Http
 import Network.HTTP.Client.TLS (newTlsManager)
-
--- | Defines possible exceptions which can be thrown from execution commands. 
-data PushoverException
-  = ResponseDecodeException
-  -- ^ This exception is thrown when a response is malformed and cannot be
-  --   decoded.
-  deriving (Show, Typeable)
-
-instance Exception PushoverException
 
 -- | Send a request to the Pushover API.
 --
