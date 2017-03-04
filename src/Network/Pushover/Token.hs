@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-| This module contains functionality and types concerning tokens used to
 authenticate and direct communications with the Pushover API.
@@ -25,7 +24,7 @@ module Network.Pushover.Token
 
 import Control.Arrow (left)
 import Control.Monad (unless)
-import Control.Monad.Catch
+import Control.Monad.Error.Class
 import Control.Monad.Except
 import Data.Aeson
 import Data.ByteString.Char8 (ByteString)
@@ -81,14 +80,14 @@ makeToken =
 --
 -- This is similar to the 'makeToken' function, except that it is generalised
 -- over the 'MonadError' monad.
-makeTokenM :: (MonadError PushoverException m) 
+makeTokenM :: (Error e, MonadError e m) 
            => Text 
            -> m PushoverToken
 makeTokenM tokenText = do
   unless validateLength $
-    throwError InvalidTokenLengthException
+    throwError . strMsg $ errorMessage InvalidTokenLengthException
   unless validateChars $
-    throwError InvalidTokenCharactersException
+    throwError . strMsg $ errorMessage InvalidTokenCharactersException
   return $ PushoverToken tokenText
 
   where 

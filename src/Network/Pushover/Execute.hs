@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-| This module exposes a set of functions used for constructing and submitting
 requests to the Pushover API.
@@ -22,9 +21,11 @@ module Network.Pushover.Execute
   ) where
 
 import Control.Exception (throw)
+import Control.Monad.Error.Class
 import Control.Monad.Except
 import Control.Monad.Reader
 import Data.Aeson (decode)
+import Network.Pushover.Message (Message)
 import Network.Pushover.Request hiding (userKey)
 import Network.Pushover.Response (Response)
 import Network.Pushover.Reader (PushoverReader (..))
@@ -79,7 +80,8 @@ sendMessageM message = do
 --
 -- This is similar to 'sendMessageM', except that a constructed 'Request' must
 -- be passed instead of just the message.
-sendRequestM :: ( MonadError e m
+sendRequestM :: ( Error e 
+                , MonadError e m
                 , MonadIO m
                 ) 
              => Request
@@ -93,7 +95,7 @@ sendRequestM pushoverRequest = do
          return resp
 
        Nothing ->
-         throw ResponseDecodeException
+         throwError . strMsg $ "response decoder error"
 
 
 -- | Create a standard Pushover request.

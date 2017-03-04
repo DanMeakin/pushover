@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-| This module exposes types intended to make it easy to incorporate Pushover
 request functionality within an existing application.
 
@@ -11,6 +10,7 @@ not yet have a reader environment and wants quickly to use Pushover.
 -}
 module Network.Pushover.Reader where
 
+import Control.Monad.Error.Class
 import Control.Monad.Except
 import Data.Text (Text)
 import Network.Pushover.Exceptions
@@ -31,7 +31,7 @@ class PushoverReader r where
 data PushoverKeys = PushoverKeys
   { _apiToken :: APIToken
   , _userKey  :: UserKey
-  }
+  } deriving Show
 
 instance PushoverReader PushoverKeys where
   apiToken =
@@ -52,7 +52,7 @@ type UnvalidatedUserKey
 --
 -- This attempts to create valid tokens/keys from a pair of unvalidated
 -- tokens/keys, returning the result wrapped within a MonadError.
-createKeys :: (MonadError PushoverException m)
+createKeys :: (Error e, MonadError e m)
            => UnvalidatedAPIToken 
            -> UnvalidatedUserKey 
            -> m PushoverKeys

@@ -1,11 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Network.Pushover.Request 
+module Network.Pushover.Request
   ( -- * Constructing a request
     Request (..)
   , defaultRequest
-    -- * Constructing a request's message
-  , Message
-  , makeMessage
     -- * Other request parameters
   , URL (..)
   , Priority (..)
@@ -14,16 +11,17 @@ module Network.Pushover.Request
   , makeHttpRequest
   ) where
 
-import Data.ByteString.Char8 (ByteString)
-import qualified Data.ByteString.Char8 as B
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
-import Data.Time (UTCTime)
-import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
-import qualified Network.HTTP.Client as Http
-import Network.Pushover.Token
-import Network.URI.Encode
+import           Data.ByteString.Char8    (ByteString)
+import qualified Data.ByteString.Char8    as B
+import           Data.Text                (Text)
+import qualified Data.Text                as T
+import qualified Data.Text.Encoding       as T
+import           Data.Time                (UTCTime)
+import           Data.Time.Clock.POSIX    (utcTimeToPOSIXSeconds)
+import qualified Network.HTTP.Client      as Http
+import           Network.Pushover.Message (Message, encodeMessage)
+import           Network.Pushover.Token
+import           Network.URI.Encode
 
 -- | Pushover API endpoint.
 endpoint = "https://api.pushover.net/1/messages.json"
@@ -31,35 +29,30 @@ endpoint = "https://api.pushover.net/1/messages.json"
 -- | Contains the contents of a Pushover notification request. This follows
 --   the API specification at @https://pushover.net/api@.
 data Request = Request
-  { token     :: APIToken
+  { requestToken :: APIToken
   -- ^ The API token provided by your Pushover app's dashboard at
   --   @https://pushover.net/apps@.
-  , userKey   :: UserKey
-  -- ^ The user key of the user receiving this notification, found in the 
+  , requestUserKey :: UserKey
+  -- ^ The user key of the user receiving this notification, found in the
   --   Pushover dashboard at @https://pushover.net/dashboard@.
-  , message   :: Message
+  , requestMessage :: Message
   -- ^ The notification message to push to the user.
-  , devices   :: [Text]
+  , devices :: [Text]
   -- ^ An optional list of devices to which to send the notification. If empty,
   --   it will be sent to all of the user's devices.
-  , title     :: Maybe Text
+  , title :: Maybe Text
   -- ^ An optional title for the message.
-  , url       :: Maybe URL
-  -- ^ An optional URL for inclusion with the message. 
-  , priority  :: Maybe Priority
-  -- ^ The priority of this message. This affects way in which the notification 
+  , url :: Maybe URL
+  -- ^ An optional URL for inclusion with the message.
+  , priority :: Maybe Priority
+  -- ^ The priority of this message. This affects way in which the notification
   --   is presented to the receiving user. See 'Priority' for more information.
   , timestamp :: Maybe UTCTime
   -- ^ An optional timestamp for the notification. If no timestamp is provided,
   --   the time the request is received by the Pushover API is used.
   , notificationSound :: Maybe NotificationSound
-  -- ^ The notification sound to use. The default is 'Pushover', with 'None' 
+  -- ^ The notification sound to use. The default is 'Pushover', with 'None'
   --   provided for a silent notification.
-  } deriving (Show, Eq)
-
--- | Represents a message sent to the Pushover API.
-newtype Message = Message
-  { getMessage :: Text 
   } deriving (Show, Eq)
 
 -- | A URL for sending within a notification request.
@@ -84,8 +77,8 @@ data Priority
   | Emergency
   deriving (Show, Eq)
 
--- | Describes the notification sound for a notification. 
-data NotificationSound 
+-- | Describes the notification sound for a notification.
+data NotificationSound
   = Pushover
   | Bike
   | Bugle
@@ -117,9 +110,9 @@ data NotificationSound
 -- fields can then be initialised using the regular Haskell record syntax.
 defaultRequest :: APIToken -> UserKey -> Message -> Request
 defaultRequest apiToken usrKey msg =
-  Request { token             = apiToken
-          , userKey           = usrKey
-          , message           = msg
+  Request { requestToken      = apiToken
+          , requestUserKey    = usrKey
+          , requestMessage    = msg
           , devices           = []
           , title             = Nothing
           , url               = Nothing
@@ -128,14 +121,9 @@ defaultRequest apiToken usrKey msg =
           , notificationSound = Nothing
           }
 
--- | Construct a 'Message' value from a 'Text' value.
-makeMessage :: Text -> Message
-makeMessage =
-  Message
-
 -- | Construct an HTTP request out of a Pushover request value.
 --
--- This function is exposed for use by the functions in the 
+-- This function is exposed for use by the functions in the
 -- "Network.Pushover.Execute" module. It is unlikely that the user will
 -- require to call it directly.
 makeHttpRequest :: Request -> IO Http.Request
@@ -153,19 +141,20 @@ requestQueryPairs =
         makePairs :: Request -> [(ByteString, Maybe ByteString)]
         makePairs request =
           (fmap . fmap) ($ request)
-            [ ("token"     , Just . encodeToken . token)
-            , ("user"      , Just . encodeToken . userKey)
-            , ("message"   , encodeValue . getMessage . message)
-            , ("device"    , encodeValue . T.intercalate "," . devices)
-            , ("title"     , encodeMaybe . title )
-            , ("url"       , encodeMaybe . reqUrl)
-            , ("url_title" , encodeMaybe . reqUrlTitle)
-            , ("priority"  , fmap encodePriority . priority)
-            , ("timestamp" , fmap encodeTimestamp . timestamp)
-            , ("sound"     , fmap encodeSound . notificationSound)
+            [ ("token",     Just . encodeToken . requestToken)
+            , ("user",      Just . encodeToken . requestUserKey)
+            , ("message",   Just . encodeMessage . requestMessage)
+            , ("device",    encodeValue . T.intercalate "," . devices)
+            , ("title",     encodeMaybe . title )
+            , ("url",       encodeMaybe . reqUrl)
+            , ("url_title", encodeMaybe . reqUrlTitle)
+            , ("priority",  fmap encodePriority . priority)
+            , ("timestamp", fmap encodeTimestamp . timestamp)
+            , ("sound",     fmap encodeSound . notificationSound)
+            , ("html",      const $ Just "1") -- Flag that HTML will be sent.
             ]
 
-          where 
+          where
                 reqUrl req =
                   urlPath <$> url req
 
