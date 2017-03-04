@@ -60,8 +60,9 @@ sendRequest =
 -- The relevant tokens are read from a 'PushoverReader' MonadReader instance.
 -- These are then used to construct a 'defaultRequest' containing the passed
 -- 'Message' value.
-sendMessageM :: ( MonadIO m
+sendMessageM :: ( Error e
                 , MonadError e m
+                , MonadIO m
                 , MonadReader r m
                 , PushoverReader r
                 ) 
