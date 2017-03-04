@@ -19,6 +19,7 @@ library
                      , Network.Pushover
                      , Network.Pushover.Exceptions
                      , Network.Pushover.Execute
+                     , Network.Pushover.Message
                      , Network.Pushover.Reader
                      , Network.Pushover.Request
                      , Network.Pushover.Response
