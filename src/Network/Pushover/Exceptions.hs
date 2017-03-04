@@ -1,11 +1,13 @@
+{-| This module defines exceptions which can be thrown within this library.
+-}
 module Network.Pushover.Exceptions where
 
-import Control.Monad.Catch
-import Control.Monad.Error.Class
-import Control.Monad.Except
-import Data.Typeable
+import           Control.Monad.Catch
+import           Control.Monad.Error.Class
+import           Control.Monad.Except
+import           Data.Typeable
 
--- | Defines possible exceptions which can be thrown from execution commands. 
+-- | Defines possible exceptions which can be thrown from execution commands.
 data PushoverException
   = ResponseDecodeException
   -- ^ This exception is thrown when a response is malformed and cannot be
@@ -30,7 +32,7 @@ instance Error PushoverException where
     PushoverException
 
 
--- | Display a description error message for each 'PushoverException' 
+-- | Display a description error message for each 'PushoverException'
 --   constructor.
 errorMessage :: PushoverException -> String
 errorMessage InvalidTokenLengthException =

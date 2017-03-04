@@ -8,7 +8,7 @@ stack within an existing application. The non-monadic versions are designed
 for standalone use.
 
 -}
-module Network.Pushover.Execute 
+module Network.Pushover.Execute
   ( -- * Regular functions
     sendMessage
   , sendRequest
@@ -20,20 +20,20 @@ module Network.Pushover.Execute
   , PushoverException (..)
   ) where
 
-import Control.Exception (throw)
-import Control.Monad.Error.Class
-import Control.Monad.Except
-import Control.Monad.Reader
-import Data.Aeson (decode)
-import Network.Pushover.Message (Message)
-import Network.Pushover.Request hiding (userKey)
-import Network.Pushover.Response (Response)
-import Network.Pushover.Reader (PushoverReader (..))
-import Network.Pushover.Exceptions
-import Network.Pushover.Token
+import           Control.Exception           (throw)
+import           Control.Monad.Error.Class
+import           Control.Monad.Except
+import           Control.Monad.Reader
+import           Data.Aeson                  (decode)
+import           Network.Pushover.Exceptions
+import           Network.Pushover.Message    (Message)
+import           Network.Pushover.Reader     (PushoverReader (..))
+import           Network.Pushover.Request    hiding (userKey)
+import           Network.Pushover.Response   (Response)
+import           Network.Pushover.Token
 
-import qualified Network.HTTP.Client as Http
-import Network.HTTP.Client.TLS (newTlsManager)
+import qualified Network.HTTP.Client         as Http
+import           Network.HTTP.Client.TLS     (newTlsManager)
 
 -- | Send a request to the Pushover API.
 --
@@ -53,7 +53,7 @@ sendRequest =
 
 -- | Send a request to the Pushover API.
 --
--- This function is designed for use within an existing monad transformer 
+-- This function is designed for use within an existing monad transformer
 -- stack to make it easy to send Pushover notifications from inside existing
 -- software.
 --
@@ -65,8 +65,8 @@ sendMessageM :: ( Error e
                 , MonadIO m
                 , MonadReader r m
                 , PushoverReader r
-                ) 
-             => Message 
+                )
+             => Message
              -> m Response
 sendMessageM message = do
   pushoverRequest <- createRequestM message
@@ -75,16 +75,16 @@ sendMessageM message = do
 
 -- | Send a request to the Pushover API.
 --
--- This function is designed for use within an existing monad transformer 
+-- This function is designed for use within an existing monad transformer
 -- stack to make it easy to send Pushover notifications from inside existing
 -- software.
 --
 -- This is similar to 'sendMessageM', except that a constructed 'Request' must
 -- be passed instead of just the message.
-sendRequestM :: ( Error e 
+sendRequestM :: ( Error e
                 , MonadError e m
                 , MonadIO m
-                ) 
+                )
              => Request
              -> m Response
 sendRequestM pushoverRequest = do
@@ -113,9 +113,9 @@ createRequest =
 createRequestM :: ( MonadReader r m
                   , PushoverReader r
                   )
-               => Message 
+               => Message
                -> m Request
 createRequestM message = do
   apiTk <- asks apiToken
   usrK  <- asks userKey
-  return $ defaultRequest apiTk usrK message  
+  return $ defaultRequest apiTk usrK message

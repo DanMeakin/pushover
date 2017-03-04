@@ -1,16 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-| This module defines the 'Response' and 'ResponseSuccess' types.
+-}
 module Network.Pushover.Response where
 
-import Data.Aeson hiding (Success)
-import Data.Text (Text)
-import qualified Data.Text as T
+import           Data.Aeson hiding (Success)
+import           Data.Text  (Text)
+import qualified Data.Text  as T
 
 -- | Describes a response received to a notification request. This follows the
 --   specification at @https://pushover.net/api#response@.
 --
 -- A request will either be successful or it will be unsuccessful. Where it is
 -- successful, an appropriate status indicator is returned. Where unsuccessful,
--- the response will contain an errors key with a list of errors within the 
+-- the response will contain an errors key with a list of errors within the
 -- request.
 --
 -- In both cases, a request parameter is returned which uniquely identifies the
@@ -31,7 +33,7 @@ instance FromJSON Response where
 -- A request is either successful or unsuccessful. This is reflected in this
 -- type. Success has no additional data associated with it; failure has a list
 -- of errors associated.
-data ResponseStatus 
+data ResponseStatus
   = Success
   | Failure [RequestError]
   deriving Show
@@ -45,7 +47,7 @@ instance FromJSON ResponseStatus where
 
          0 ->
            Failure <$> v .: "errors"
-              
+
 type RequestError =
   Text
 

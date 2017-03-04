@@ -1,8 +1,10 @@
 name:                pushover
 version:             0.1.0.0
--- synopsis:
--- description:
-homepage:            https://github.com/DanMeakin/pushover#readme
+synopsis:            A Haskell Pushover API library
+description:         This package provides functionality to allow Haskell
+                     developers to interact with the Pushover API 
+                     (https:\/\/pushover.net).
+homepage:            https://github.com/DanMeakin/pushover
 license:             BSD3
 license-file:        LICENSE
 author:              Dan Meakin
@@ -15,8 +17,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
-                     , Network.Pushover
+  exposed-modules:     Network.Pushover
                      , Network.Pushover.Exceptions
                      , Network.Pushover.Execute
                      , Network.Pushover.Message

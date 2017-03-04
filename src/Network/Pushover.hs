@@ -46,6 +46,7 @@ module Network.Pushover
   , NotificationSound (..)
     -- * Response
   , Response (..)
+  , ResponseStatus (..)
     -- * Reader
   , PushoverReader (..)
   , PushoverKeys (..)

@@ -14,9 +14,9 @@ be nested within each other by simply calling the functions on the results of
 other function calls. For example:-
 
 @
-  bold 
-    [ italic 
-        [ text "This is bold & italic" 
+  bold
+    [ italic
+        [ text "This is bold & italic"
         ]
     , text "This is bold"
     , underline
@@ -28,7 +28,7 @@ other function calls. For example:-
 will create a message with the text values formatted as described.
 
 -}
-module Network.Pushover.Message 
+module Network.Pushover.Message
   ( -- * Creating a Message
     Message
   , message
@@ -46,24 +46,24 @@ module Network.Pushover.Message
   , Url
   ) where
 
-import Data.ByteString.Char8 (ByteString)
+import           Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as B
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
-import Numeric (showHex)
+import           Data.Text             (Text)
+import qualified Data.Text             as T
+import qualified Data.Text.Encoding    as T
+import           Numeric               (showHex)
 
 -- | Represents a message sent to the Pushover API.
 --
 -- A Pushover message can be constructed with a very small subset of HTML.
 -- This type represents the available HTML formatting for a message.
 data Message
-  = Parts [Message]
-  | Bold [Message]
-  | Italic [Message]
-  | Underline [Message]
+  = Parts           [Message]
+  | Bold            [Message]
+  | Italic          [Message]
+  | Underline       [Message]
   | Color ColorCode [Message]
-  | Link Url [Message]
+  | Link Url        [Message]
   | MessageText Text
   deriving (Show, Eq)
 
@@ -122,7 +122,7 @@ text =
 -- | Construct a 'ColorCode' value.
 --
 -- A 'ColorCode' requires a red, a green and a blue value for construction.
--- This function takes these as arguments and returns a constructed 
+-- This function takes these as arguments and returns a constructed
 -- 'ColorCode'.
 --
 -- This function checks that each element is within the required 0-255 range.
@@ -138,8 +138,8 @@ makeColorCode r g b =
 
   where
         f =
-          max 0 . min 255 
-  
+          max 0 . min 255
+
 -- | Encode a 'Message' into a bytestring.
 --
 -- This function is intended to convert a 'Message' into a form useable within
@@ -148,7 +148,7 @@ encodeMessage :: Message -> ByteString
 encodeMessage =
   enc
 
-  where 
+  where
         enc msg =
           case msg of
                Parts msg ->
@@ -202,16 +202,16 @@ encodeMessage =
 
 -- | Encode a 'ColorCode' into a bytestring.
 --
--- This converts a 'ColorCode' value into its corresponding hexadecimal 
+-- This converts a 'ColorCode' value into its corresponding hexadecimal
 -- representation.
 encodeColorCode :: ColorCode -> ByteString
 encodeColorCode (ColorCode r g b) =
   B.pack $ '#':hexCode
 
-  where 
+  where
         hexCode =
           padShow r . padShow g . padShow b $ ""
 
         padShow =
-          (\hex rest -> replicate (2 - length (hex "")) '0' ++ hex rest) 
+          (\hex rest -> replicate (2 - length (hex "")) '0' ++ hex rest)
             <$> showHex
